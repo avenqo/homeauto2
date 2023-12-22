@@ -1,8 +1,8 @@
 import sys
 
-from mqtt_pub import MqttPub
-from pulse_reader import TibberPulse
-from logConfig import initLogger
+from libs.mqtt_pub import MqttPub
+from libs.pulse_reader import TibberPulse
+from libs.logConfig import initLogger
 import os
 
 # MQTT Broker
@@ -32,7 +32,7 @@ if MQTT_PWD is None:
     )
 
 # Establish MQTT connection
-log = initLogger()
+log = initLogger("./logs/tibber.log")
 mqttPublisher = MqttPub(broker, port, MQTT_USER, MQTT_PWD, MQTT_CLIENT, log)
 # starts the loop too
 mqttPublisher.connect_mqtt()

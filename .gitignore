@@ -161,4 +161,4 @@ cython_debug/
 doc/drawings/.~lock.system_overview.odg#
 
 # user defined
-src/tmp/
+tmp/

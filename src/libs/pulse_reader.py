@@ -1,11 +1,15 @@
+# Subscribing to Tibber Websocket and receiving updates from there.
+# Publish the received data to MQTT Broker
+#
 import requests
 import time
 import calendar
-from mqtt_pub import MqttPub
+from libs.mqtt_pub import MqttPub
 from gql import Client, gql
 from gql.transport.websockets import WebsocketsTransport
 from dateutil.parser import parse
 
+# MQTT Topics
 MQTT_TOPIC_CONSUMPTION = "/home/tibber/pulse/power/current/consumption"
 MQTT_TOPIC_PRODUCTION = "/home/tibber/pulse/power/current/production"
 

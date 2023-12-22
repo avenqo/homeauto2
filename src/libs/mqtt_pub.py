@@ -1,7 +1,5 @@
 from paho.mqtt import client as mqtt_client
-import random
 import time
-
 
 # for reconnection
 FIRST_RECONNECT_DELAY = 1
