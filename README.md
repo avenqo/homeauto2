@@ -4,7 +4,7 @@ This project represents the home automation control running on Raspberry PI for 
 - multiple solar chargers
 - Victron Multiplus (in ESS mode)
 
-
+[ToDo's](doc/todos.md)
 ## Goal
 The main goal is 
 1. to avoid power consumption from grid by charging and using the battery power
@@ -12,6 +12,7 @@ The main goal is
 
 ## Overview
 (see drawings)
+
 
 ## Necessary Libraries
 
