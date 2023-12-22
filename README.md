@@ -13,5 +13,6 @@ The main goal is
 ## Overview
 (see drawings)
 
+## Necessary Libraries
 
-
+pip3 install paho-mqtt
