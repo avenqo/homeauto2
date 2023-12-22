@@ -6,4 +6,5 @@ docker stop mosquitto || true
 docker rm mosquitto || true
 docker rmi eclipse-mosquitto || true
 #reinstall and start
+cd ./docker/mosquitto
 docker compose up -d
