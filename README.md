@@ -13,6 +13,5 @@ The main goal is
 ## Overview
 (see drawings)
 
-[Mosquitto MQTT Broker](./doc/mosquitto.md)
 
 

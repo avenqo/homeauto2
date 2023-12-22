@@ -16,6 +16,24 @@ or
 cd homeauto2/docker/mosquitto
 docker compose up -d
 ```
+The container is now up and running named as **mosquitto**.
+
+## Credentials
+The default credentials (user, password) are `mqtt-user` and password is (t.b.d.).
+
+May be changed via interactive terminal session with mosquitto.
+```
+docker exec -it mosquitto sh
+    mosquitto_passwd -c /mosquitto/data/pwfile mqtt-user
+    Password: secret
+    exit
+Question: Is restart necessary?
+```
+
+## Useful commands
+Open a interactive shell
+`docker exec -it mosquitto sh`
+
 
 ## Run, stop, remove container & image
 ```
@@ -24,6 +42,4 @@ docker stop mosquitto
 docker rm mosquitto
 docker rmi eclipse-mosquitto
 ```
-
-[Back to readme.md](../readme.md)
 
