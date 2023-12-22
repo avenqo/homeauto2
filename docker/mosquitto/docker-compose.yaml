@@ -1,0 +1,17 @@
+version: '3'
+services:
+    mosquitto:
+        container_name: mosquitto
+        restart: always
+        image: eclipse-mosquitto
+        ports:
+            - "1883:1883"
+            - "9001:9001"
+        volumes: 
+            - ./docker/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+            - ./docker/mosquitto/data:/mosquitto/data
+            - ./docker/mosquitto/log:/mosquitto/log
+        networks:
+            - default
+networks:
+    default:
