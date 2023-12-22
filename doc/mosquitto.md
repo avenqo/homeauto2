@@ -14,8 +14,16 @@ or
 ## Create Image & first Run
 ```
 cd homeauto2/docker/mosquitto
-docker-compose -f ./docker/mosquitto/docker-compose.yaml up -d
+docker compose up -d
 ```
 
-## Run the container
+## Run, stop, remove container & image
+```
+docker start mosquitto
+docker stop mosquitto
+docker rm mosquitto
+docker rmi eclipse-mosquitto
+```
+
+[Back to readme.md](../readme.md)
 
