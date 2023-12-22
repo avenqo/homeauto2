@@ -8,3 +8,4 @@ docker rmi eclipse-mosquitto || true
 #reinstall and start
 cd ./docker/mosquitto
 docker compose up -d
+cd ../../
