@@ -4,24 +4,13 @@ from libs.logConfig import initLogger
 from libs.config import Config
 from libs.mp_modbus import MpModbus
 from libs.mqtt_pub import MqttPub
+from libs.mqtt_topics import *
 from timeit import default_timer as timer
 import traceback
 import sys
 import os
 
 MQTT_CLIENT = "Victron_Publisher"
-
-# Power consumption as measured by EM24
-MQTT_TOPIC_EM24_CONSUMPTION = "/home/victron/em24/consumption"
-
-# Power controlled by Victron Multiplus II -> positiv: charging, negative: discharging
-MQTT_TOPIC_MP_POWER = "/home/victron/mp/power/controlled"
-
-# Battery state of charge
-MQTT_TOPIC_MP_SOC = "/home/victron/mp/battery/soc"
-
-# MPPT Charger power
-MQTT_TOPIC_MPPT_POWER = "/home/victron/mppt/power"
 
 # ===== Init =====
 INTERVAL = 3  # loop interval in seconds
@@ -85,7 +74,7 @@ while True:
             mqttPublisher.publish(MQTT_TOPIC_EM24_CONSUMPTION, EValue)
             mqttPublisher.publish(MQTT_TOPIC_MP_POWER, VValue)
             mqttPublisher.publish(MQTT_TOPIC_MP_SOC, soc)
-            mqttPublisher.publish(MQTT_TOPIC_MPPT_POWER, VPvValue)
+            mqttPublisher.publish(MQTT_TOPIC_MPPT_SOLAR_POWER, VPvValue)
 
     except Exception as e:
         # try to close

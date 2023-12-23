@@ -1,5 +1,3 @@
-import sys
-
 from libs.mqtt_pub import MqttPub
 from libs.pulse_reader import TibberPulse
 from libs.logConfig import initLogger

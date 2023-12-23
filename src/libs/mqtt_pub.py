@@ -17,7 +17,7 @@ class MqttPub:
         self.clientId = clientId
         self.log = logger
 
-    def connect_mqtt(self):
+    def connect_mqtt(self, startLoop=True):
         self.log.info("MqttPub->connect_mqtt()")
 
         def on_connect(client, userdata, flags, rc):
@@ -32,7 +32,8 @@ class MqttPub:
         self.client.on_connect = on_connect
         self.client.on_disconnect = self._on_disconnect
         self.client.connect(self.broker, self.port)
-        self.client.loop_start()
+        if startLoop:
+            self.client.loop_start()
 
     def publish(self, topic, msg):
         self.log.info("MqttPub->publish() - topic [%s], msg [%s]", topic, msg)
@@ -88,3 +89,10 @@ class MqttPub:
     def loop_stop(self):
         self.log.info("MqttPub->loop_stop()")
         self.client.loop_stop
+
+    def subscribe(self, topic, callback):
+        def on_message(client, userdata, msg):
+            print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
+
+        self.client.subscribe(topic)
+        self.client.on_message = callback

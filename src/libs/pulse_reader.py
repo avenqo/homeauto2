@@ -4,14 +4,13 @@
 import requests
 import time
 import calendar
+import websockets
 from libs.mqtt_pub import MqttPub
+from libs.mqtt_topics import MQTT_TOPIC_TIBBER_PULSE_CONSUMPTION, MQTT_TOPIC_PRODUCTION
 from gql import Client, gql
 from gql.transport.websockets import WebsocketsTransport
 from dateutil.parser import parse
-
-# MQTT Topics
-MQTT_TOPIC_CONSUMPTION = "/home/tibber/pulse/power/current/consumption"
-MQTT_TOPIC_PRODUCTION = "/home/tibber/pulse/power/current/production"
+import sys
 
 
 class TibberPulse:
@@ -103,6 +102,16 @@ class TibberPulse:
                 self.log.info("Tibber->fetch_data(): result(" + str(result) + ")")
                 self.console_handler(result)
 
+        except (
+            websockets.exceptions.ConnectionClosedError,
+            ConnectionResetError,
+        ) as ex1:
+            module = ex1.__class__.__module__
+            print(module + ex1.__class__.__name__)
+            self.log.info("Connection was closed. Try to reconnecting ...")
+            time.sleep(6)
+            self.fetch_data()
+
         except Exception as ex:
             module = ex.__class__.__module__
             print(module + ex.__class__.__name__)
@@ -113,10 +122,11 @@ class TibberPulse:
                     "If you continue to see this error you can fix it by recreating the tibber token"
                 )
                 time.sleep(600)
-        finally:
+
             ws_client.transport.close()
             self.mqtt_pub.loop_stop()
             self.log.info("Finally: Client closed.")
+            sys.exit(22)
 
     def console_handler(self, data):
         self.log.info("Tibber->console_handler()")
@@ -168,7 +178,7 @@ class TibberPulse:
                 }
             ]
 
-            self.mqtt_pub.publish(MQTT_TOPIC_CONSUMPTION, consumption)
+            self.mqtt_pub.publish(MQTT_TOPIC_TIBBER_PULSE_CONSUMPTION, consumption)
             self.mqtt_pub.publish(MQTT_TOPIC_PRODUCTION, production)
 
             # print("---- Output, Date ----")
