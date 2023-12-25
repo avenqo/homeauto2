@@ -5,74 +5,100 @@ from libs.mqtt_topics import *
 from libs.logConfig import initLogger
 from libs.config import Config
 from ctrl_mp import ControllMultiplus
-
-# from libs.mp_modbus import MpModbus
+from timeit import default_timer as timer
+import sys
 import os
 
+# Max. wait until all measurements are available
+TIMEOUT_SEC = 10
+RECALC_INTERVAL_SEC = 5
+
+
+class MqttEventHandler:
+    def __init__(self, logger):
+        self.log = logger
+
+
+class MqttEventHandler:
+    #  +: consumption, -: production
+    TibberPower = None
+    TibberProduction = None
+    EM24Power = None
+    VictronPvProduction = None
+    Soc = None
+    #  +: loading, -: supporting
+    VictronMpPower = None
+
+    def __init__(self, logger):
+        self.log = logger
+        self.controllerMultiplus = ControllMultiplus(logger=logger)
+        self.timeout = timer() + TIMEOUT_SEC
+        # when should start the next recalculation
+        self.nextRecalcTime = 0
+
+    def onEvent(self, client, topic, value):
+        if topic == MQTT_TOPIC_EM24_CONSUMPTION:
+            self.EM24Power = int(value)
+        elif topic == MQTT_TOPIC_MPPT_SOLAR_POWER:
+            self.VictronPvProduction = int(value)
+        elif topic == MQTT_TOPIC_MP_SOC:
+            self.Soc = int(value)
+        elif topic == MQTT_TOPIC_TIBBER_PULSE_CONSUMPTION:
+            self.TibberPower = int(value)
+        elif topic == MQTT_TOPIC_TIBBER_PULSE_PRODUCTION:
+            self.TibberProduction = int(value)
+        elif topic == MQTT_TOPIC_MP_POWER:
+            self.VictronMpPower = int(value)
+        else:
+            self.log.error("Don't know how to handle [" + topic + "]")
+        if self._isInitialized():
+            if timer() > self.nextRecalcTime:
+                self.controllerMultiplus.recalc(
+                    self.TibberPower - self.TibberProduction,
+                    self.EM24Power,
+                    self.VictronMpPower,
+                    self.Soc,
+                    self.VictronPvProduction,
+                )
+                self.nextRecalcTime = timer() + RECALC_INTERVAL_SEC
+        else:
+            self.log.info("Waiting for measurement values ...")
+            if timer() > self.timeout:
+                self.log.error("Timeout when waiting for [" + TIMEOUT_SEC + " sec.]")
+                sys.exit(3)
+
+    def _isInitialized(self) -> bool:
+        return (
+            (self.TibberPower is not None)
+            and (self.TibberProduction is not None)
+            and (self.EM24Power is not None)
+            and (self.VictronPvProduction is not None)
+            and (self.Soc is not None)
+            and (self.VictronMpPower is not None)
+        )
+
+
+# ================= MQTT EventHandler ========================
 # --- Variable init ---
 log = initLogger("./logs/ctrl_loop.log")
 cfg = Config(log)
 cfg.show()
 
-# multiPlus = MpModbus(cfg.getMultiplusIp(), logger=log, simulate=SIMULATE)
-controllerMultiplus = ControllMultiplus(logger=log)
+mqttHandler = MqttEventHandler(log)
 
-# --- Handle MQTT Events ---
-# powerConsumtion = 0
-
-
-TValue = ""
-EValue = 0
-VPvValue = 0
-soc = 0
-VValue = 0
+# --- On mqtt event handler ---
 
 
 def onMqttEvent(client, userdata, msg):
-    global TValue
-    global TProductionValue
-    global EValue
-    global VPvValue
-    global soc
-    global VValue
-
+    log.debug("MQTT event received")
     topic = msg.topic
     value = msg.payload.decode()
-
-    if topic == MQTT_TOPIC_EM24_CONSUMPTION:
-        EValue = int(value)
-    elif topic == MQTT_TOPIC_MPPT_SOLAR_POWER:
-        VPvValue = int(value)
-    elif topic == MQTT_TOPIC_MP_SOC:
-        soc = int(value)
-    elif topic == MQTT_TOPIC_TIBBER_PULSE_CONSUMPTION:
-        TValue = int(value)
-    elif topic == MQTT_TOPIC_TIBBER_PULSE_PRODUCTION:
-        TProductionValue = int(value)
-    elif topic == MQTT_TOPIC_MP_POWER:
-        VValue = int(value)
-    elif topic.startswith("/home/house/"):
-        z = 0  # nothing
-    else:
-        log.error("Dont know how to handle topic [%s].", topic)
-
-    print(f"MQTT Event: `{msg.payload.decode()}` from `{msg.topic}` topic")
-    controllerMultiplus.recalc(TValue, EValue, VValue, soc, VPvValue)
-
-    # --- publish measured and calculated results ---
-    # House Solar System Production
-    try:
-        log.info("value [%s], EValue [%s], TValue [%s]", value, EValue, TValue)
-        mqttPublisher.publish(MQTT_TOPIC_HOUSE_SOLAR_PROD, EValue - TValue)
-        # Devices consuming energy (or producing e.g. balkony solar systems)
-        mqttPublisher.publish(MQTT_TOPIC_HOUSE_CONSUMPTION, EValue - VValue)
-        # mqttPublisher.publish(MQTT_TOPIC_HOUSE_CO, EValue - VValue)
-    except TypeError:
-        log.info("Cancel result publishing due to TypeError")
+    mqttHandler.onEvent(client, topic, value)
 
 
+# ===========================================================================
 # --- MQTT connection & subscription ---
-MQTT_CLIENT = "Control_Loop"
+MQTT_CLIENT_NAME = "Control_Loop"
 
 MQTT_USER = os.getenv("MQTT_USER")  # None
 if MQTT_USER is None:
@@ -91,7 +117,7 @@ mqttPublisher = MqttPub(
     cfg.getMqttBrokerPort(),
     MQTT_USER,
     MQTT_PWD,
-    MQTT_CLIENT,
+    MQTT_CLIENT_NAME,
     log,
 )
 # starts the loop too
@@ -99,8 +125,4 @@ mqttPublisher.connect_mqtt(False)
 
 # Subscribe & loop
 mqttPublisher.subscribe("/home/#", onMqttEvent)
-
-# Sometimes: TypeError: _on_disconnect() takes 3 positional arguments but 4 were given
-# This has to do with MQTT versions?!
-
 mqttPublisher.client.loop_forever()

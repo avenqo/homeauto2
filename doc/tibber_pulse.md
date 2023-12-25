@@ -11,6 +11,12 @@ The read values are taken and published to a MQTT broker
 /home/tibber/pulse/power/current/production
 
 ## Issues
+### websockets.exceptionsConnectionClosedError
+ 'lastMeterConsumption': 2186.9218}}
+2023-12-25 12:35:30,190 - root - ERROR - Module [websockets.exceptionsConnectionClosedError], Args [(None, None, None)]
+Finally: Client closed.
+
+### Too many open connections ....
 The connection is not stable meaning that there are occuring several exceptions during the websocket connection.
 Sometimes, the connection may be reestablished, but it (sooner or later) always leads to a situation like this:
 ```
