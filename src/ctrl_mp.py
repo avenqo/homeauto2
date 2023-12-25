@@ -69,8 +69,8 @@ class ControllMultiplus:
                 chargerPower = bilanz
                 # Die Gesamtbilanz etwas im Minus Bereich halten, um so echten Verbrauch zu verhindern
                 chargerPower += 100
-                if chargerPower < cfg.getPowerChargeLimit():
-                    chargerPower = cfg.getPowerChargeLimit()
+                if chargerPower < self.cfg.getPowerChargeLimit():
+                    chargerPower = self.cfg.getPowerChargeLimit()
                 self.log.debug("Charger ON for %d W", chargerPower)
 
             elif bilanz > 100:  # Bilanz positiv -> Verbrauch ist zu hoch

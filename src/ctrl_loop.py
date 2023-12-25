@@ -30,6 +30,7 @@ VValue = 0
 
 def onMqttEvent(client, userdata, msg):
     global TValue
+    global TProductionValue
     global EValue
     global VPvValue
     global soc
@@ -46,10 +47,10 @@ def onMqttEvent(client, userdata, msg):
         soc = int(value)
     elif topic == MQTT_TOPIC_TIBBER_PULSE_CONSUMPTION:
         TValue = int(value)
+    elif topic == MQTT_TOPIC_TIBBER_PULSE_PRODUCTION:
+        TProductionValue = int(value)
     elif topic == MQTT_TOPIC_MP_POWER:
         VValue = int(value)
-    elif topic == MQTT_TOPIC_PRODUCTION:
-        z = 0  # nothing
     elif topic.startswith("/home/house/"):
         z = 0  # nothing
     else:
@@ -65,6 +66,7 @@ def onMqttEvent(client, userdata, msg):
         mqttPublisher.publish(MQTT_TOPIC_HOUSE_SOLAR_PROD, EValue - TValue)
         # Devices consuming energy (or producing e.g. balkony solar systems)
         mqttPublisher.publish(MQTT_TOPIC_HOUSE_CONSUMPTION, EValue - VValue)
+        # mqttPublisher.publish(MQTT_TOPIC_HOUSE_CO, EValue - VValue)
     except TypeError:
         log.info("Cancel result publishing due to TypeError")
 

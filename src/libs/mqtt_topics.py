@@ -1,6 +1,6 @@
 # MQTT Topics Tibber Puls
 MQTT_TOPIC_TIBBER_PULSE_CONSUMPTION = "/home/tibber/pulse/power/current/consumption"
-MQTT_TOPIC_PRODUCTION = "/home/tibber/pulse/power/current/production"
+MQTT_TOPIC_TIBBER_PULSE_PRODUCTION = "/home/tibber/pulse/power/current/production"
 
 
 # Power consumption as measured by EM24
