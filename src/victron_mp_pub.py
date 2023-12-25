@@ -65,7 +65,12 @@ while True:
             soc = multiPlus.getSoc()
             EValue = multiPlus.getPowerConsumption()
             VValue = multiPlus.getControlledPower()
-            VPvValue = -1 * int(multiPlus.getDcPvPower())
+
+            # sometimes None is returned
+            VPvValue = -1
+            anyVPvValue = multiPlus.getDcPvPower()
+            if anyVPvValue is not None:
+                VPvValue = -1 * int(multiPlus.getDcPvPower())
 
             log.info("Consumption\tE: %d W,\tV: %d W", EValue, VValue)
             log.info("Production\tVPv: %d W", VPvValue)

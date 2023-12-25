@@ -1,5 +1,5 @@
+from libs.pulse_reader import Tibber
 from libs.mqtt_pub import MqttPub
-from libs.pulse_reader import TibberPulse
 from libs.logConfig import initLogger
 import os
 
@@ -35,8 +35,6 @@ mqttPublisher = MqttPub(broker, port, MQTT_USER, MQTT_PWD, MQTT_CLIENT, log)
 # starts the loop too
 mqttPublisher.connect_mqtt()
 
-# Start websocket subscription
-clientTibber = TibberPulse(TIBBER_URL, TIBBER_API_TOKEN, mqttPublisher, log)
+clientTibber = Tibber(TIBBER_URL, TIBBER_API_TOKEN, mqttPublisher, log)
 clientTibber.initSocketUri()
-# infinite loop
 clientTibber.readPower()

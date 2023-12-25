@@ -63,7 +63,7 @@ class MqttPub:
                 break
         """
 
-    def _on_disconnect(self, userdata, rc):
+    def _on_disconnect(self, client, userdata, rc):
         self.log.info(
             "MqttPub->_on_disconnect() - Disconnected with result code: %s", rc
         )

@@ -37,6 +37,7 @@ def onMqttEvent(client, userdata, msg):
 
     topic = msg.topic
     value = msg.payload.decode()
+
     if topic == MQTT_TOPIC_EM24_CONSUMPTION:
         EValue = int(value)
     elif topic == MQTT_TOPIC_MPPT_SOLAR_POWER:
@@ -48,12 +49,24 @@ def onMqttEvent(client, userdata, msg):
     elif topic == MQTT_TOPIC_MP_POWER:
         VValue = int(value)
     elif topic == MQTT_TOPIC_PRODUCTION:
-        z = 1  # nothing
+        z = 0  # nothing
+    elif topic.startswith("/home/house/"):
+        z = 0  # nothing
     else:
         log.error("Dont know how to handle topic [%s].", topic)
 
     print(f"MQTT Event: `{msg.payload.decode()}` from `{msg.topic}` topic")
     controllerMultiplus.recalc(TValue, EValue, VValue, soc, VPvValue)
+
+    # --- publish measured and calculated results ---
+    # House Solar System Production
+    try:
+        log.info("value [%s], EValue [%s], TValue [%s]", value, EValue, TValue)
+        mqttPublisher.publish(MQTT_TOPIC_HOUSE_SOLAR_PROD, EValue - TValue)
+        # Devices consuming energy (or producing e.g. balkony solar systems)
+        mqttPublisher.publish(MQTT_TOPIC_HOUSE_CONSUMPTION, EValue - VValue)
+    except TypeError:
+        log.info("Cancel result publishing due to TypeError")
 
 
 # --- MQTT connection & subscription ---
@@ -84,4 +97,8 @@ mqttPublisher.connect_mqtt(False)
 
 # Subscribe & loop
 mqttPublisher.subscribe("/home/#", onMqttEvent)
+
+# Sometimes: TypeError: _on_disconnect() takes 3 positional arguments but 4 were given
+# This has to do with MQTT versions?!
+
 mqttPublisher.client.loop_forever()

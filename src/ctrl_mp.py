@@ -29,6 +29,7 @@ class ControllMultiplus:
         try:
             """Recalc Multiplus power control based on MQTT Events"""
             # ---- 0. Ensure PV charger is ON -----
+            # this is necessary; otherwise no loading will happen
             self.multiPlus.setDcPvChargerOn()
 
             # ---- 1. Set new target time. Ignore system stressing events  -----

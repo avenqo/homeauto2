@@ -14,7 +14,7 @@ def initLogger(logFile):
     formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
-    log = logging.getLogger("Rotating Multiplus Control")
+    log = logging.getLogger("")
     log.setLevel(logging.INFO)
     # log.setLevel(logging.DEBUG)
     # Rotating Handler

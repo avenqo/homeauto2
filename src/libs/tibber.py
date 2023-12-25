@@ -1,31 +1,23 @@
 import requests
 import time
 import calendar
-import sys
-from libs.mqtt_pub import MqttPub
+
 from gql import Client, gql
 from gql.transport.websockets import WebsocketsTransport
 from dateutil.parser import parse
-
-# MQTT Topics
-MQTT_TOPIC_CONSUMPTION = "/home/tibber/pulse/power/current/consumption"
-MQTT_TOPIC_PRODUCTION = "/home/tibber/pulse/power/current/production"
 
 
 class Tibber:
     """Read out power values provided by Tibber."""
 
-    def __init__(self, urlTibber, key, mqtt_pub, logger):
+    def __init__(self, urlTibber, key):
         self.key = key
         self.urlTibber = urlTibber
-        self.log = logger
-        self.mqtt_pub = mqtt_pub
         self.subscription_query = """
             subscription {{
                 liveMeasurement(homeId:"{HOME_ID}"){{
                     timestamp
                     power
-                    powerProduction
                     accumulatedConsumption
                     accumulatedCost
                     voltagePhase1
@@ -109,11 +101,8 @@ class Tibber:
 
         except Exception as ex:
             module = ex.__class__.__module__
-            # print(module + ex.__class__.__name__)
+            print(module + ex.__class__.__name__)
             exargs = str(ex.args)
-            self.log.error(
-                "Module [%s], Args [%s]", module + ex.__class__.__name__, exargs
-            )
             if exargs.find("Too many open connections") != -1:
                 print("Too many open connections. Sleeping 10 minutes...")
                 print(
@@ -121,9 +110,8 @@ class Tibber:
                 )
                 time.sleep(600)
         finally:
-            # ws_client.transport.close()
+            ws_client.transport.close()
             print("Finally: Client closed.")
-            sys.exit(22)
 
     def console_handler(self, data):
         print("Tibber->console_handler()")
@@ -134,10 +122,7 @@ class Tibber:
             timeObj = parse(timestamp)
             hourMultiplier = timeObj.hour + 1
             daysInMonth = calendar.monthrange(timeObj.year, timeObj.month)[1]
-            consumption = measurement["power"]
-            production = measurement["powerProduction"]
-
-            # power = measurement["power"]
+            power = measurement["power"]
             # min_power = measurement['minPower']
             # max_power = measurement['maxPower']
             # avg_power = measurement['averagePower']
@@ -158,7 +143,7 @@ class Tibber:
                     "time": timestamp,
                     "tags": {"address": self.address},
                     "fields": {
-                        "power": self._ifStringZero(consumption),
+                        "power": self._ifStringZero(power),
                         "consumption": self._ifStringZero(accumulated),
                         "cost": self._ifStringZero(accumulated_cost),
                         "voltagePhase1": self._ifStringZero(voltagePhase1),
@@ -175,9 +160,6 @@ class Tibber:
                     },
                 }
             ]
-
-            self.mqtt_pub.publish(MQTT_TOPIC_CONSUMPTION, consumption)
-            self.mqtt_pub.publish(MQTT_TOPIC_PRODUCTION, production)
 
             print("---- Output, Date ----")
             print(output)
