@@ -3,19 +3,16 @@ import time
 import calendar
 import sys
 from libs.mqtt_pub import MqttPub
+from libs.mqtt_topics import *
 from gql import Client, gql
 from gql.transport.websockets import WebsocketsTransport
 from dateutil.parser import parse
-
-# MQTT Topics
-MQTT_TOPIC_CONSUMPTION = "/home/tibber/pulse/power/current/consumption"
-MQTT_TOPIC_PRODUCTION = "/home/tibber/pulse/power/current/production"
 
 
 class Tibber:
     """Read out power values provided by Tibber."""
 
-    def __init__(self, urlTibber, key, mqtt_pub, logger):
+    def __init__(self, urlTibber, key, mqtt_pub: MqttPub, logger):
         self.key = key
         self.urlTibber = urlTibber
         self.log = logger
@@ -122,7 +119,7 @@ class Tibber:
                 time.sleep(600)
         finally:
             # ws_client.transport.close()
-            print("Finally: Client closed.")
+            print("Exit with code 22.")
             sys.exit(22)
 
     def console_handler(self, data):
@@ -176,12 +173,12 @@ class Tibber:
                 }
             ]
 
-            self.mqtt_pub.publish(MQTT_TOPIC_CONSUMPTION, consumption)
-            self.mqtt_pub.publish(MQTT_TOPIC_PRODUCTION, production)
+            self.mqtt_pub.publish(MQTT_TOPIC_TIBBER_PULSE_CONSUMPTION, consumption)
+            self.mqtt_pub.publish(MQTT_TOPIC_TIBBER_PULSE_PRODUCTION, production)
 
-            print("---- Output, Date ----")
-            print(output)
-            print(data)
+            # print("---- Output, Date ----")
+            # print(output)
+            # print(data)
 
     def readPower(self):
         print("Tibber->readPower() - sleep for 5 secs.")

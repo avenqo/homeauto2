@@ -36,7 +36,7 @@ class MqttPub:
             self.client.loop_start()
 
     def publish(self, topic, msg):
-        self.log.info("MqttPub->publish() - topic [%s], msg [%s]", topic, msg)
+        self.log.debug("MqttPub->publish() - topic [%s], msg [%s]", topic, msg)
         result = self.client.publish(topic, msg)
         status = result[0]
         if status == 0:
@@ -45,23 +45,6 @@ class MqttPub:
             self.log.error(
                 f"MqttPub->publish(): Failed to send message to topic {topic}"
             )
-
-        """
-        msg_count = 1
-        while True:
-            time.sleep(1)
-            msg = f"messages: {msg_count}"
-            result = self.client.publish(topic, msg)
-            # result: [0, 1]
-            status = result[0]
-            if status == 0:
-                print(f"Send `{msg}` to topic `{topic}`")
-            else:
-                print(f"Failed to send message to topic {topic}")
-            msg_count += 1
-            if msg_count > 5:
-                break
-        """
 
     def _on_disconnect(self, client, userdata, rc):
         self.log.info(
