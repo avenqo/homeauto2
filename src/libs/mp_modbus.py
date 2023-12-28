@@ -28,7 +28,7 @@ class MpModbus:
             self.log.info("--- Simulating Multiplus control ---")
 
     def _writeRegister(self, _unit, register, value, typ):
-        builder = BinaryPayloadBuilder(byteorder=Endian.Big, wordorder=Endian.Big)
+        builder = BinaryPayloadBuilder(byteorder=Endian.BIG, wordorder=Endian.BIG)
         builder.reset()
 
         if typ == UINT16:
@@ -45,7 +45,7 @@ class MpModbus:
         result = self.client.read_input_registers(register, 1, slave=_unit)
         # https://pymodbus.readthedocs.io/en/v1.3.2/library/payload.html
         decoder = BinaryPayloadDecoder.fromRegisters(
-            result.registers, byteorder=Endian.Big
+            result.registers, byteorder=Endian.BIG
         )
         if typ == UINT16:
             return decoder.decode_16bit_uint() / scale

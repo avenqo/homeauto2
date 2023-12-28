@@ -62,24 +62,24 @@ while True:
             multiPlus.setDcPvChargerOn()
 
             # ---- 1. Read and publish  -----
-            soc = multiPlus.getSoc()
-            EValue = multiPlus.getPowerConsumption()
-            VValue = multiPlus.getControlledPower()
+            Soc = multiPlus.getSoc()
+            EM24Power = multiPlus.getPowerConsumption()
+            VictronMpPower = multiPlus.getControlledPower()
 
             # sometimes None is returned
-            VPvValue = -1
+            VictronPvPower = -1
             anyVPvValue = multiPlus.getDcPvPower()
             if anyVPvValue is not None:
-                VPvValue = -1 * int(multiPlus.getDcPvPower())
+                VictronPvPower = -1 * int(multiPlus.getDcPvPower())
 
-            log.info("Consumption\tE: %d W,\tV: %d W", EValue, VValue)
-            log.info("Production\tVPv: %d W", VPvValue)
-            log.info("Battery\t\tSOC: %d" % soc)
+            log.info("Consumption\tE: %d W,\tV: %d W", EM24Power, VictronMpPower)
+            log.info("Production\tVPv: %d W", VictronPvPower)
+            log.info("Battery\t\tSOC: %d" % Soc)
 
-            mqttPublisher.publish(MQTT_TOPIC_EM24_CONSUMPTION, EValue)
-            mqttPublisher.publish(MQTT_TOPIC_MP_POWER, VValue)
-            mqttPublisher.publish(MQTT_TOPIC_MP_SOC, soc)
-            mqttPublisher.publish(MQTT_TOPIC_MPPT_SOLAR_POWER, VPvValue)
+            mqttPublisher.publish(MQTT_TOPIC_EM24_CONSUMPTION, EM24Power)
+            mqttPublisher.publish(MQTT_TOPIC_MP_POWER, VictronMpPower)
+            mqttPublisher.publish(MQTT_TOPIC_MP_SOC, Soc)
+            mqttPublisher.publish(MQTT_TOPIC_MPPT_SOLAR_POWER, VictronPvPower)
 
     except Exception as e:
         # try to close
