@@ -164,3 +164,4 @@ doc/drawings/.~lock.system_overview.odg#
 tmp/
 src/logs/
 .*lock*
+src/.DS_Store

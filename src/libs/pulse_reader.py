@@ -119,7 +119,7 @@ class Tibber:
                 time.sleep(600)
         finally:
             # ws_client.transport.close()
-            print("Exit with code 22.")
+            self.log.error("Exit with code 22.")
             sys.exit(22)
 
     def console_handler(self, data):
