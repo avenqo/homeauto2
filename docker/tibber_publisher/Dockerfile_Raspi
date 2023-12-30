@@ -1,0 +1,23 @@
+# Raspberry needs 'gcc' for any reason.
+FROM arm32v7/python:3.9-alpine3.18
+
+WORKDIR /tibber_pulse
+COPY ./ /tibber_pulse/
+
+RUN apk update && apk upgrade
+RUN apk add --no-cache bash\
+    gcc \
+    libc-dev \
+    && rm -rf /var/cache/apk/*
+
+RUN pip install -U pip
+RUN pip3 install multidict
+RUN pip3 install gql
+RUN pip install paho-mqtt==1.6.1
+RUN pip install requests
+RUN pip install websockets
+RUN pip install parse
+RUN pip3 install python-dateutil
+
+WORKDIR /tibber_pulse/src/
+CMD ./tibber_respawn.sh

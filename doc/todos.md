@@ -1,8 +1,9 @@
 # Todo's
 
+## Docker: Control Loop
+Control Loop should delegate Multiplus actions to victron publisher; therefore, docker container will not need pymodbus dependency anymore 
+
 ## Logging
-limit log size
-info -> debugging
 how to change logging live
 log level definition ->  config
 different log files for different modules

@@ -5,10 +5,35 @@ The idea of the module is to subscribe to Tibber and listening for power values 
 
 The read values are taken and published to a MQTT broker
 
-## Published messages
+## Docker Container Creation
+The Docker file is created locally for the Raspberry architecture, transmitted to Dockerhub, and pulled by the Raspberry PI.
+We are starting at the parent directory.
 
-/home/tibber/pulse/power/current/consumption
-/home/tibber/pulse/power/current/production
+May be you must delete any further installations
+```
+docker stop tibber_publisher 
+docker rm tibber_publisher
+docker rmi tibber_publisher:v1
+```
+
+The Docker container can be investigated by
+`docker exec -it tibber_publisher /bin/bash`
+
+Two Dockerfiles are provided: Dockerfile and Dockerfile_Raspi.
+
+The first is for local builds.
+ `docker build -f ./docker/tibber_publisher/Dockerfile -t "tibber_publisher:v1" .`
+ `docker run -it --name tibber_publisher --env MQTT_USER=mqtt-user --env MQTT_PWD=SbzDdr88 --env TIBBER_API_TOKEN=e408GnWKYJBG7oVRipyB4azSunATvt4IpHeh5jRBnxo tibber_publisher:v1`
+
+The second Dockerfile is for your Raspberry Pi: locally build and published on Dockerhub
+It requires you are logged in on Dockerhub
+`docker login`
+The Docker image is created and pushed on Dockerhub
+`docker buildx build -f ./docker/tibber_publisher/Dockerfile_Raspi --platform linux/arm64,linux/arm/v7 -t "avenqo/tibber_publisher:v1" --push .`
+
+On Raspberry Pi, you may pull the new created image.
+`docker run -it --name tibber_publisher --restart always --env MQTT_USER=mqtt-user --env MQTT_PWD=SbzDdr88 --env TIBBER_API_TOKEN=e408GnWKYJBG7oVRipyB4azSunATvt4IpHeh5jRBnxo avenqo/tibber_publisher:v1`
+
 
 ## Issues
 ### websockets.exceptionsConnectionClosedError
@@ -16,9 +41,10 @@ The read values are taken and published to a MQTT broker
 2023-12-25 12:35:30,190 - root - ERROR - Module [websockets.exceptionsConnectionClosedError], Args [(None, None, None)]
 Finally: Client closed.
 
+This may happen somtimes for any reason. Therefore, the tibber python publisher isn't started cirectly but supervised by an extra shell script trying to respawn the script in case of failures.
+
 ### Too many open connections ....
-The connection is not stable meaning that there are occuring several exceptions during the websocket connection.
-Sometimes, the connection may be reestablished, but it (sooner or later) always leads to a situation like this:
+Sometimes, the connection may be reestablished after occurred exception, but it (sooner or later) always leads to a situation like this:
 ```
 2023-12-25 08:49:54,547 - Rotating Multiplus Control - INFO - Connection was closed. Try to reconnecting ...
 2023-12-25 08:50:00,553 - Rotating Multiplus Control - INFO - Tibber->fetch_data()
@@ -64,4 +90,4 @@ websockets.exceptionsConnectionClosedError
     raise self.connection_closed_exc()
 websockets.exceptions.ConnectionClosedError: received 4429 (private use) Too many open connections on this server; count 2; user agent Python/3.9 websockets/10.4; then sent 4429 (private use) Too many open connections on this server; count 2; user agent Python/3.9 websockets/10.4
 ```
-The only solution for it is to request a new API key.
+The only solution for it is to request a new API key and restart the docker container.

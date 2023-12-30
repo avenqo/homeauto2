@@ -1,5 +1,5 @@
-# Subscribe on MQTT event
-# Delegate Events to Multiplus control
+# Subscribe on MQTT event and receive published values (Multiplus, EM24, Tibber, MPPT solar charger)
+# Send the values to control_mp for recalculation
 from libs.mqtt_pub import MqttPub
 from libs.mqtt_topics import *
 from libs.logConfig import initLogger

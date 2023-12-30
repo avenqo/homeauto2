@@ -1,12 +1,12 @@
 from libs.pulse_reader import Tibber
 from libs.mqtt_pub import MqttPub
 from libs.logConfig import initLogger
+from libs.config import Config
 import os
 
-# MQTT Broker
-broker = "192.168.178.85"
-port = 1883
-topic = "home/kitchen/temperature"
+log = initLogger("./logs/tibber.log")
+cfg = Config(log)
+cfg.show()
 
 TIBBER_URL = "https://api.tibber.com/v1-beta/gql"
 # a readable name for the MQTT client
@@ -30,8 +30,14 @@ if MQTT_PWD is None:
     )
 
 # Establish MQTT connection
-log = initLogger("./logs/tibber.log")
-mqttPublisher = MqttPub(broker, port, MQTT_USER, MQTT_PWD, MQTT_CLIENT, log)
+mqttPublisher = MqttPub(
+    cfg.getMqttBrokerHost(),
+    cfg.getMqttBrokerPort(),
+    MQTT_USER,
+    MQTT_PWD,
+    MQTT_CLIENT,
+    log,
+)
 # starts the loop too
 mqttPublisher.connect_mqtt()
 
