@@ -46,6 +46,9 @@ or
 - [Victron Publisher](./doc/victron_publisher.md)
 - [Tibber Publisher](./doc/tibber_publisher.md)
 
+### 3. Run the containers
+t.b.d.
+
 ## Components
 The system consists of 4 docker containers running on Raspberry Pi 3b+.
 ### Mosquitto (MQTT Server)
