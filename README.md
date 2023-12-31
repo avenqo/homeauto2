@@ -17,23 +17,32 @@ The main goal is
 ![architecture](./doc/drawings/system_overview.png).
 ### Energy Measurements
 ![measurements](./doc/drawings//energy_calculation.png).
-## Necessary Tools & Libraries
+
+## Preconditions
+### Docker
+The docker container must be created locally. Therefore, docker must be installed on
+- on your target system (Raspberry Pi)
+- on your host for building the docker images (for docker image creation purposes only)
+
+## Components
+The system consists of 4 socker containers running on Raspberry Pi 3b+.
 ### Mosquitto (MQTT Server)
 The MQTT server is the information broker in the middle of the system.
 Installation and configuration is [explained here](./doc/mosquitto.md).
 
-## Preconditions
-### Docker
-The Docker container must be created locally. Therefore, Docker must be installed on
-- on your host for building the Docker images
-- on your target system (Raspberry Pi)
-
-
-## Components
-### Multiplus Power Control
+### Multiplus (Power) Control
 Takes the values from MQTT Broker and recalculates the power flow for Victron Multiplus  meaning inverter or charger mode, depending on power balance. 
 [read more](./doc/multiplus_control.md)
 
 ### Victron Publisher
 Reads the value from Victron Multiplus, Victron MPPT charger and EM24 and publish them on MQTT Broker.
 [read more](./doc/victron_publisher.md)
+
+### Tibber Publisher
+- Opens a websockert connection via [Tibber API](https://developer.tibber.com/docs/guides/calling-api)
+- receives the power consumption and production values
+- publishes the values on MQTT Broker.
+[read more](./doc/tibber_publisher.md)
+
+
+

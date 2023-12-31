@@ -6,7 +6,7 @@ The idea of the module is to subscribe to Tibber and listening for power values 
 The read values are taken and published to a MQTT broker
 
 ## Docker Container Creation
-The Docker file is created locally for the Raspberry architecture, transmitted to Dockerhub, and pulled by the Raspberry PI.
+The docker file is created locally for the Raspberry architecture, transmitted to Docker Hub, and pulled by the Raspberry PI.
 We are starting at the parent directory.
 
 May be you must delete any further installations
@@ -16,22 +16,22 @@ docker rm tibber_publisher
 docker rmi tibber_publisher:v1
 ```
 
-The Docker container can be investigated by
+The docker container can be investigated by
 `docker exec -it tibber_publisher /bin/bash`
 
-Two Dockerfiles are provided: Dockerfile and Dockerfile_Raspi.
+Two docker files are provided: Dockerfile and Dockerfile_Raspi.
 
 The first is for local builds.
  `docker build -f ./docker/tibber_publisher/Dockerfile -t "tibber_publisher:v1" .`
  `docker run -it --name tibber_publisher --env MQTT_USER=mqtt-user --env MQTT_PWD=SbzDdr88 --env TIBBER_API_TOKEN=e408GnWKYJBG7oVRipyB4azSunATvt4IpHeh5jRBnxo tibber_publisher:v1`
 
-The second Dockerfile is for your Raspberry Pi: locally build and published on Dockerhub
-It requires you are logged in on Dockerhub
+The second docker file is for your Raspberry Pi: locally build and published on Docker Hub
+It requires you are logged in on Docker Hub
 `docker login`
-The Docker image is created and pushed on Dockerhub
+The docker image is created and pushed on Docker Hub
 `docker buildx build -f ./docker/tibber_publisher/Dockerfile_Raspi --platform linux/arm64,linux/arm/v7 -t "avenqo/tibber_publisher:v1" --push .`
 
-On Raspberry Pi, you may pull the new created image.
+On Raspberry Pi, you may pull the new created docker image.
 `docker run -it --name tibber_publisher --restart always --env MQTT_USER=mqtt-user --env MQTT_PWD=SbzDdr88 --env TIBBER_API_TOKEN=e408GnWKYJBG7oVRipyB4azSunATvt4IpHeh5jRBnxo avenqo/tibber_publisher:v1`
 
 
