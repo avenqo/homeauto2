@@ -16,8 +16,7 @@ The main goal is to minimize the necessary amount of energy (and price) being de
    
 ## Overview
 ### System overview
-![architecture](./doc/drawings/system_overview.png)
-<img src="./doc/drawings/system_overview.png" width="50%" height="50%">
+<img src="./doc/drawings/system_overview.png" width="75%" height="75%">
 
 ### Energy Measurements
 ![measurements](./doc/drawings//energy_calculation.png)
