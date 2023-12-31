@@ -16,9 +16,9 @@ The main goal is to minimize the necessary amount of energy (and price) being de
    
 ## Overview
 ### System overview
-![architecture](./doc/drawings/system_overview.png).
+![architecture](./doc/drawings/system_overview.png =x800)
 ### Energy Measurements
-![measurements](./doc/drawings//energy_calculation.png).
+![measurements](./doc/drawings//energy_calculation.png)
 
 ## Preconditions
 ### Docker
