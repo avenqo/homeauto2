@@ -10,7 +10,7 @@ import sys
 import os
 
 # Max. wait until all measurements are available
-TIMEOUT_SEC = 10
+TIMEOUT_SEC = 20
 RECALC_INTERVAL_SEC = 5
 
 
@@ -29,9 +29,10 @@ class MqttEventHandler:
     #  +: loading, -: supporting
     VictronMpPower = None
 
-    def __init__(self, logger):
+    def __init__(self, logger, config):
         self.log = logger
-        self.controllerMultiplus = ControllMultiplus(logger=logger)
+        self.cfg = config
+        self.controllerMultiplus = ControllMultiplus(logger=logger, config=config)
         self.timeout = timer() + TIMEOUT_SEC
         # when should start the next recalculation
         self.nextRecalcTime = 0
@@ -49,6 +50,23 @@ class MqttEventHandler:
             self.TibberProduction = int(value)
         elif topic == MQTT_TOPIC_MP_POWER:
             self.VictronMpPower = int(value)
+        # Configurations
+        elif topic == MQTT_TOPIC_MP_CFG_SOC_LIMIT_LOW:
+            strValue = str(value)
+            self.cfg.setSocLimitLow(strValue)
+            self.log.info("=== RECEIVED [" + MQTT_TOPIC_MP_CFG_SOC_LIMIT_LOW + "] ===")
+            self.log.info("=== Value : [" + strValue + "]")
+            self.log.info("=== Value2 : [" + str(self.cfg.getSocLimitLow()) + "]")
+
+        elif topic == MQTT_TOPIC_MP_CFG_SOC_LIMIT_UPPER:
+            self.cfg.setSocLimitHigh(value)
+        elif topic == MQTT_TOPIC_MP_CFG_GRIDSETPOINT:
+            self.cfg.setGridSetPoint(value)
+        elif topic == MQTT_TOPIC_MP_CFG_MAX_POWER_INVERT:
+            self.cfg.setPowerInverterLimit(int(value))
+        elif topic == MQTT_TOPIC_MP_CFG_MAX_POWER_CHARGE:
+            self.cfg.setPowerChargeLimit(int(value))
+
         else:
             self.log.error("Don't know how to handle [" + topic + "]")
         if self._isInitialized():
@@ -64,18 +82,43 @@ class MqttEventHandler:
         else:
             self.log.info("Waiting for measurement values ...")
             if timer() > self.timeout:
-                self.log.error("Timeout when waiting for [" + TIMEOUT_SEC + " sec.]")
+                self.log.error(
+                    "Timeout when waiting for [" + str(TIMEOUT_SEC) + " sec.]"
+                )
                 sys.exit(3)
 
     def _isInitialized(self) -> bool:
-        return (
-            (self.TibberPower is not None)
-            and (self.TibberProduction is not None)
-            and (self.EM24Power is not None)
-            and (self.VictronPvProduction is not None)
-            and (self.Soc is not None)
-            and (self.VictronMpPower is not None)
+        tibberPowerAvailable = self.TibberPower is not None
+        tibberProductionAvailable = self.TibberProduction is not None
+        em24PowerAvailable = self.EM24Power is not None
+        victronPvProductionAvailable = self.VictronPvProduction is not None
+        socAvailable = self.Soc is not None
+        victronMpPowerAvailable = self.VictronMpPower is not None
+
+        ret = (
+            tibberPowerAvailable
+            and tibberProductionAvailable
+            and em24PowerAvailable
+            and victronPvProductionAvailable
+            and socAvailable
+            and victronMpPowerAvailable
         )
+        if not ret:
+            msg = "Missing: "
+            if not tibberPowerAvailable:
+                msg += "Tibber Consumption Power, "
+            if not tibberProductionAvailable:
+                msg += "Tibber Production Power, "
+            if not em24PowerAvailable:
+                msg += "EM24 Power, "
+            if not victronPvProductionAvailable:
+                msg += "Victron PV Production Power, "
+            if not socAvailable:
+                msg += "SOC, "
+            if not victronMpPowerAvailable:
+                msg += "Victron Multiplus Power, "
+            self.log.info(msg)
+        return ret
 
 
 # ================= MQTT EventHandler ========================
@@ -84,7 +127,7 @@ log = initLogger("./logs/ctrl_loop.log")
 cfg = Config(log)
 cfg.show()
 
-mqttHandler = MqttEventHandler(log)
+mqttHandler = MqttEventHandler(log, cfg)
 
 # --- On mqtt event handler ---
 
@@ -98,7 +141,7 @@ def onMqttEvent(client, userdata, msg):
 
 # ===========================================================================
 # --- MQTT connection & subscription ---
-MQTT_CLIENT_NAME = "Control_Loop"
+MQTT_CLIENT_NAME = "Multiplus_Control_Loop"
 
 MQTT_USER = os.getenv("MQTT_USER")  # None
 if MQTT_USER is None:

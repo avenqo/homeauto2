@@ -14,10 +14,9 @@ MIN_POWER = 100
 
 
 class ControllMultiplus:
-    def __init__(self, logger):
+    def __init__(self, logger, config):
         self.log = logger
-        # self.parser = ConfigParser()
-        self.cfg = Config(logger)
+        self.cfg = config
         self.targetTime = timer() + INTERVAL
         self.multiPlus = MpModbus(
             self.cfg.getMultiplusIp(), logger=self.log, simulate=False

@@ -2,7 +2,7 @@ from paho.mqtt import client as mqtt_client
 import time
 
 # for reconnection
-FIRST_RECONNECT_DELAY = 1
+FIRST_RECONNECT_DELAY = 6
 RECONNECT_RATE = 2
 MAX_RECONNECT_COUNT = 12
 MAX_RECONNECT_DELAY = 60
