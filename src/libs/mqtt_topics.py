@@ -1,3 +1,9 @@
+# Charge from grid when undercut SOC limit at night and price is low
+MQTT_TOPIC_GRID_CHARGE_SOC_LIMIT_LOW = "/home/grid/chrg/soc/limit/low"
+MQTT_TOPIC_GRID_CHARGE_SOC_LIMIT_HIGH = "/home/grid/chrg/soc/limit/high"
+MQTT_TOPIC_GRID_CHARGE_PRICE_LIMIT_LOW = "/home/grid/chrg/price/limit/low"
+MQTT_TOPIC_GRID_CHARGE_PWR_LIMIT = "/home/grid/chrg/price/limit/low"
+
 # Victron Multiplus Configuration Data
 MQTT_TOPIC_MP_CFG_SOC_LIMIT_LOW = "/home/victron/mp/cfg/soc/limit/low"
 MQTT_TOPIC_MP_CFG_SOC_LIMIT_UPPER = "/home/victron/mp/cfg/soc/limit/up"

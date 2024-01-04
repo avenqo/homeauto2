@@ -1,5 +1,5 @@
 # Recalc Victron Multiplus power
-# Go on idle if no change was received for a minute
+
 
 from libs.mp_modbus import MpModbus
 from libs.config import Config

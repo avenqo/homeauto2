@@ -17,6 +17,7 @@ class Config:
         self.sectionHardware = self.parser["hardware"]
         self.sectionPower = self.parser["power"]
         self.sectionMqtt = self.parser["mqtt"]
+        self.sectionGridCharger = self.parser["grid_charger"]
 
     def _updateConfigFile(self):
         with open(self.cfgFileRelPath, "w") as configfile:
@@ -45,6 +46,35 @@ class Config:
 
     def getUrlEnergy(self):
         return self.sectionHardware["URL_ENERGY_METER"]
+
+    # ----- Charge from Grid ------
+    def getGridChargeSocLimitLow(self):
+        return int(self.sectionGridCharger["GRID_CHARGER_SOC_LIMIT_LOW"])
+
+    def setGridChargeSocLimitLow(self, value):
+        self.sectionGridCharger["GRID_CHARGER_SOC_LIMIT_LOW"] = value
+        self._updateConfigFile()
+
+    def getGridChargeSocLimitHigh(self):
+        return int(self.sectionGridCharger["GRID_CHARGER_SOC_LIMIT_HIGH"])
+
+    def setGridChargeSocLimitHigh(self, value):
+        self.sectionGridCharger["GRID_CHARGER_SOC_LIMIT_HIGH"] = value
+        self._updateConfigFile()
+
+    def getGridChargePriceLimitLow(self):
+        return int(self.sectionGridCharger["GRID_CHARGER_PRICE_LIMIT_LOW"])
+
+    def setGridChargePriceLimitLow(self, value):
+        self.sectionGridCharger["GRID_CHARGER_PRICE_LIMIT_LOW"] = value
+        self._updateConfigFile()
+
+    def getGridChargePowerLimit(self):
+        return int(self.sectionGridCharger["GRID_CHARGER_POWER_LIMIT"])
+
+    def setGridChargePowerLimit(self, value):
+        self.sectionGridCharger["GRID_CHARGER_POWER_LIMIT"] = value
+        self._updateConfigFile()
 
     # ----- Multiplus ------
     def getSocLimitLow(self):

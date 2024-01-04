@@ -39,9 +39,9 @@ class Tibber:
 
     def _run_query(self, query, headers):
         """A simple function to use requests.post to make the API call. Note the json= section."""
-        print("=== URL: [" + self.urlTibber + "]")
-        print("=== Query: [" + query + "]")
-        print("=== Haeder: [" + str(headers) + "]")
+        self.log.info("=== URL: [" + self.urlTibber + "]")
+        self.log.info("=== Query: [" + query + "]")
+        self.log.info("=== Haeder: [" + str(headers) + "]")
 
         request = requests.post(
             url=self.urlTibber, json={"query": query}, headers=headers
@@ -64,9 +64,10 @@ class Tibber:
         return res
 
     def initSocketUri(self):
-        print("Tibber->initSocketUri()")
+        """Get HomeId and URL for websocket subscription"""
+        self.log.info("Tibber->initSocketUri()")
 
-        # Get HomeID & WebSocket URI
+        # Get HomeID & Address
         query = "{ viewer { homes { address { address1 } id } } }"
         resp = self._run_query(query, self.headers)
         self.tibberhomeid = resp["data"]["viewer"]["homes"][0]["id"]
@@ -76,7 +77,7 @@ class Tibber:
         # Get subscription URI
         resp = self._run_query("{viewer{websocketSubscriptionUrl}}", self.headers)
         self.ws_uri = resp["data"]["viewer"]["websocketSubscriptionUrl"]
-        print(
+        self.log.info(
             "Using homeid ["
             + self.tibberhomeid
             + "], adr ["
@@ -87,21 +88,22 @@ class Tibber:
         )
 
     def fetch_data(self):
-        print("Tibber->fetch_data()")
+        """Initializes the Websockets connection; fetches data from tibber continuously via console_handler."""
+        self.log.info("Tibber->fetch_data()")
 
         transport = WebsocketsTransport(
             url=self.ws_uri, headers=self.headers, keep_alive_timeout=120
         )
         ws_client = Client(transport=transport, fetch_schema_from_transport=True)
         subscription = gql(self.subscription_query.format(HOME_ID=self.tibberhomeid))
-        print(
+        self.log.info(
             "Subscription: ["
             + self.subscription_query.format(HOME_ID=self.tibberhomeid)
             + "]"
         )
         try:
             for result in ws_client.subscribe(subscription):
-                print("Tibber->fetch_data(): result(" + str(result) + ")")
+                self.log.info("Tibber->fetch_data(): result(" + str(result) + ")")
                 self.console_handler(result)
 
         except Exception as ex:
@@ -123,7 +125,8 @@ class Tibber:
             sys.exit(22)
 
     def console_handler(self, data):
-        print("Tibber->console_handler()")
+        """Called by fetch_data() when data are received from tibber"""
+        self.log.info("Tibber->console_handler()")
 
         if "liveMeasurement" in data:
             measurement = data["liveMeasurement"]
@@ -181,7 +184,7 @@ class Tibber:
             # print(data)
 
     def readPower(self):
-        print("Tibber->readPower() - sleep for 5 secs.")
+        self.log.debug("Tibber->readPower() - sleep for 5 secs.")
         time.sleep(5)
-        print("Run GQL query.")
+        self.log.debug("Run GQL query.")
         self.fetch_data()
