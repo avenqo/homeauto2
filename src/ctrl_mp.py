@@ -8,7 +8,7 @@ from timeit import default_timer as timer
 import traceback
 import sys
 
-INTERVAL = 7  # loop interval in seconds
+INTERVAL_SEC = 7  # loop interval in seconds
 # Minimum house solar power to be delivered to grid
 MIN_POWER = 100
 
@@ -17,7 +17,7 @@ class ControllMultiplus:
     def __init__(self, logger, config):
         self.log = logger
         self.cfg = config
-        self.targetTime = timer() + INTERVAL
+        self.targetTime = timer() + INTERVAL_SEC
         self.multiPlus = MpModbus(
             self.cfg.getMultiplusIp(), logger=self.log, simulate=False
         )
@@ -37,7 +37,7 @@ class ControllMultiplus:
             if timer() < self.targetTime:
                 # ignore calls being too early
                 return
-            self.targetTime = timer() + INTERVAL
+            self.targetTime = timer() + INTERVAL_SEC
 
             # ============== Calculate Multiplus (Dis-)Charge ==============
             HouseSolarPower = TibberPower - EM24Power
@@ -126,6 +126,6 @@ class ControllMultiplus:
             self.log.debug("Reset loop")
             # multiPlus.activateIdle()
             TibberPower = 0
-            targetTime = timer() + INTERVAL
+            targetTime = timer() + INTERVAL_SEC
 
             sys.exit(111)

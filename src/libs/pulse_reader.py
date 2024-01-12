@@ -2,17 +2,21 @@ import requests
 import time
 import calendar
 import sys
+from timeit import default_timer as timer
 from libs.mqtt_pub import MqttPub
 from libs.mqtt_topics import *
 from gql import Client, gql
 from gql.transport.websockets import WebsocketsTransport
 from dateutil.parser import parse
 
+INTERVAL_PRICE_CHECK_SEC = 10
+
 
 class Tibber:
     """Read out power values provided by Tibber."""
 
     def __init__(self, urlTibber, key, mqtt_pub: MqttPub, logger):
+        self.targetTimePriceCheck = timer() + INTERVAL_PRICE_CHECK_SEC
         self.key = key
         self.urlTibber = urlTibber
         self.log = logger
@@ -188,3 +192,14 @@ class Tibber:
         time.sleep(5)
         self.log.debug("Run GQL query.")
         self.fetch_data()
+
+    def publishPrices(self):
+        if timer() < self.targetTime:
+            # ignore calls being too early
+            return
+        self.targetTime = timer() + INTERVAL_PRICE_CHECK_SEC
+        self.log.debug(
+            "Tibber->publishPrices() - sleep for ["
+            + INTERVAL_PRICE_CHECK_SEC
+            + "] secs."
+        )

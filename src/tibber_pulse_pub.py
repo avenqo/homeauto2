@@ -1,3 +1,4 @@
+from multiprocessing import Process
 from libs.pulse_reader import Tibber
 from libs.mqtt_pub import MqttPub
 from libs.logConfig import initLogger
@@ -43,4 +44,14 @@ mqttPublisher.connect_mqtt()
 
 clientTibber = Tibber(TIBBER_URL, TIBBER_API_TOKEN, mqttPublisher, log)
 clientTibber.initSocketUri()
-clientTibber.readPower()
+
+
+# clientTibber.readPower()
+
+if __name__ == "__main__":
+    p1 = Process(target=clientTibber.readPower)
+    p1.start()
+    p2 = Process(target=clientTibber.publishPrices)
+    p2.start()
+    p1.join()
+    p2.join()
